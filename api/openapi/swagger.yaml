@@ -1,0 +1,941 @@
+definitions:
+  schemas.AppointmentPayload:
+    properties:
+      appointment_time:
+        example: YYYY-MM-DD H:M:S
+        type: string
+      doctor_id:
+        example: UUID
+        type: string
+      user_id:
+        example: UUID
+        type: string
+    required:
+    - appointment_time
+    - doctor_id
+    - user_id
+    type: object
+  schemas.AppointmentStatus:
+    enum:
+    - pending
+    - confirmed
+    - canceled
+    type: string
+    x-enum-varnames:
+    - AppointmentStatusPending
+    - AppointmentStatusConfirmed
+    - AppointmentStatusCanceled
+  schemas.Doctor:
+    properties:
+      created_at:
+        type: string
+      experience:
+        type: integer
+      first_name:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      last_name:
+        type: string
+      slug:
+        type: string
+      specialization:
+        type: string
+      treatment_profile:
+        type: string
+      updated_at:
+        type: string
+      working_hours:
+        items:
+          additionalProperties:
+            type: string
+          type: object
+        type: array
+    type: object
+  schemas.DoctorAppointment:
+    properties:
+      appointment_time:
+        type: string
+      created_at:
+        type: string
+      doctor_info:
+        properties:
+          experience:
+            type: integer
+          first_name:
+            type: string
+          image:
+            type: string
+          last_name:
+            type: string
+          specialization:
+            type: string
+        type: object
+      id:
+        type: string
+      s:
+        type: string
+      status:
+        $ref: '#/definitions/schemas.AppointmentStatus'
+    type: object
+  schemas.DoctorPayload:
+    properties:
+      experience:
+        type: integer
+      first_name:
+        example: STRING
+        type: string
+      last_name:
+        example: STRING
+        type: string
+      professional_activity:
+        type: string
+      specialization:
+        type: string
+      treatment_profile:
+        type: string
+      working_hours:
+        items:
+          additionalProperties:
+            type: string
+          type: object
+        type: array
+    required:
+    - experience
+    - first_name
+    - last_name
+    - professional_activity
+    - specialization
+    - treatment_profile
+    - working_hours
+    type: object
+  schemas.ForgetPassPayload:
+    properties:
+      email:
+        example: '@gmail.com'
+        type: string
+      password:
+        example: '**********'
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  schemas.IDResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  schemas.ManyDoctorAppointment:
+    properties:
+      count:
+        type: integer
+      doctor_appointments:
+        items:
+          $ref: '#/definitions/schemas.DoctorAppointment'
+        type: array
+    type: object
+  schemas.ManyDoctors:
+    properties:
+      count:
+        type: integer
+      doctors:
+        items:
+          $ref: '#/definitions/schemas.Doctor'
+        type: array
+    type: object
+  schemas.ManyUserAppointment:
+    properties:
+      count:
+        type: integer
+      user_appointments:
+        items:
+          $ref: '#/definitions/schemas.UserAppointment'
+        type: array
+    type: object
+  schemas.ManyUsers:
+    properties:
+      count:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/schemas.UserResponse'
+        type: array
+    type: object
+  schemas.NullAppointmentStatus:
+    properties:
+      appointment_status:
+        $ref: '#/definitions/schemas.AppointmentStatus'
+      valid:
+        type: boolean
+    type: object
+  schemas.ResponseError:
+    properties:
+      data:
+        type: string
+      status:
+        type: integer
+    type: object
+  schemas.ResponseSuccess:
+    properties:
+      data: {}
+      status:
+        type: integer
+    type: object
+  schemas.SignInPayload:
+    properties:
+      password:
+        example: '**********'
+        type: string
+      user_name:
+        example: UNIQUE
+        type: string
+    required:
+    - password
+    - user_name
+    type: object
+  schemas.SignUpPayload:
+    properties:
+      email:
+        example: '@gmail.com'
+        type: string
+      password:
+        example: '**********'
+        type: string
+      user_name:
+        example: UNIQUE
+        type: string
+    required:
+    - email
+    - password
+    - user_name
+    type: object
+  schemas.TokenResponse:
+    properties:
+      access_expired_time:
+        type: number
+      access_token:
+        type: string
+      refresh_expires_time:
+        type: number
+      refresh_token:
+        type: string
+      success:
+        type: boolean
+    type: object
+  schemas.UpdateUserProfilePayload:
+    properties:
+      full_name:
+        type: string
+      phone_number:
+        type: string
+    type: object
+  schemas.UserAppointment:
+    properties:
+      appointment_time:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      status:
+        $ref: '#/definitions/schemas.NullAppointmentStatus'
+      updated_at:
+        type: string
+      user_info:
+        properties:
+          full_name:
+            type: string
+          phone_number:
+            type: string
+        type: object
+    type: object
+  schemas.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      phone_number:
+        type: string
+      user_name:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This API contains the source for the med.uz app
+  title: MED App
+paths:
+  /api/appointment:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new appointment
+      parameters:
+      - description: Appointment Request
+        in: body
+        name: appointment
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.AppointmentPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/schemas.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Appointment
+      tags:
+      - Appointment
+  /api/appointment/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an existing appointment by ID
+      parameters:
+      - description: Appointment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Appointment
+      tags:
+      - Appointment
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing appointment
+      parameters:
+      - example: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Appointment Update Request
+        in: body
+        name: appointment
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.AppointmentPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Appointment
+      tags:
+      - Appointment
+  /api/appointment/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Updates the status of an existing appointment
+      parameters:
+      - example: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Appointment Status Update Request
+        enum:
+        - pending
+        - confirmed
+        - canceled
+        in: query
+        name: appointment
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Appointment Status
+      tags:
+      - Appointment
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns an access token
+      parameters:
+      - description: User Login Credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.SignInPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      summary: Login User
+      tags:
+      - Auth
+  /api/auth/password:
+    put:
+      consumes:
+      - application/json
+      description: Updates the password for an authenticated user
+      parameters:
+      - description: Password Update Request
+        in: body
+        name: password
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.ForgetPassPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Password
+      tags:
+      - Auth
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user in the system
+      parameters:
+      - description: User Registration Request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.SignUpPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/schemas.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      summary: Register User
+      tags:
+      - Auth
+  /api/doctor:
+    post:
+      description: Doctor Create
+      parameters:
+      - description: Doctor Request
+        in: body
+        name: doctor
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.DoctorPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Doctor Create
+      tags:
+      - Doctor
+  /api/doctor-appointments/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of appointments for a specific doctor
+      parameters:
+      - description: Doctor ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ManyDoctorAppointment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Doctor Appointments
+      tags:
+      - Appointment
+  /api/doctor/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Doctor Delete
+      parameters:
+      - example: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - BearerAuth: []
+      summary: Doctor Delete
+      tags:
+      - Doctor
+    get:
+      consumes:
+      - application/json
+      description: get doctor
+      parameters:
+      - example: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.Doctor'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      - ApiKeyAuth: []
+      summary: Get doctor
+      tags:
+      - Doctor
+    put:
+      description: Doctor Update
+      parameters:
+      - example: UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Doctor Request
+        in: body
+        name: doctor
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.DoctorPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Doctor Update
+      tags:
+      - Doctor
+  /api/doctors/list:
+    get:
+      consumes:
+      - application/json
+      description: get doctors
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ManyDoctors'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get doctors
+      tags:
+      - Doctor
+  /api/user-appointments/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of appointments for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: limit
+        type: integer
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ManyUserAppointment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get User Appointments
+      tags:
+      - Appointment
+  /api/user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an existing user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete User
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get User
+      tags:
+      - User
+    put:
+      description: Updates the profile of an existing user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User Update Request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.UpdateUserProfilePayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.IDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update User Profile
+      tags:
+      - User
+  /api/users/list:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all users with optional search filter
+      parameters:
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ManyUsers'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schemas.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get All Users
+      tags:
+      - User
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

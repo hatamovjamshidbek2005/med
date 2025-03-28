@@ -1,0 +1,41 @@
+image: docker:20.10.16
+
+services:
+  - docker:20.10.16-dind
+
+stages:
+  - build
+  - deploy
+
+before_script:
+  - apk add git && apk add make
+  - docker login --username $CI_REGISTRY --password $CI_REGISTRY_PASSWORD
+
+build_image_staging:
+  tags:
+    - backend
+  stage: build
+  script:
+    - make build-image REGISTRY=$CI_REGISTRY APP=$APP_TEST ENV_TAG=$CI_PIPELINE_IID
+    - make push-image REGISTRY=$CI_REGISTRY APP=$APP_TEST ENV_TAG=$CI_PIPELINE_IID
+  only:
+    - staging
+
+update_image_tag_staging:
+  image: mikefarah/yq:3
+  stage: deploy
+  tags:
+    - backend
+  before_script:
+    - apk add git
+    - git clone --single-branch --branch "feat/add-canary-release" $HELM_CHARTS_PATH
+    - git config --global user.email "$GITLAB_USER_EMAIL"
+    - git config --global user.name "$GITLAB_USER_NAME"
+    - cd mb_kubernetes/$APP_TEST
+  script:
+    - yq w -i values.yaml 'image.tag' $CI_PIPELINE_IID
+    - git add values.yaml
+    - git commit -m "CI Deploy TAG Path TO $CI_PIPELINE_IID"
+    - git push -o ci.skip origin feat/add-canary-release
+  only:
+    - staging

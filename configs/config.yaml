@@ -1,0 +1,84 @@
+redis_host: "localhost"
+redis_port: "6379"
+jwt_sign_in_key: "asd@#lskd2!aw32k34242WSASdsk32"
+
+leaky_buckets:
+  - method: "POST"
+    path: "/api/movie"
+    limit: 10
+    interval: "minute"
+    type: "ip"
+    key_field: ""
+    allow_on_failure: true
+    not_allow_msg: "Too many movie creation requests"
+    not_allow_code: "429"
+
+  - method: "PUT"
+    path: "/api/movie/:id"
+    limit: 20
+    interval: "hour"
+    type: "jwt"
+    key_field: "user_id"
+    allow_on_failure: false
+    not_allow_msg: "Too many update requests"
+    not_allow_code: "429"
+
+  - method: "DELETE"
+    path: "/api/movie/:id"
+    limit: 5
+    interval: "hour"
+    type: "ip"
+    key_field: ""
+    allow_on_failure: false
+    not_allow_msg: "Too many deletion requests"
+    not_allow_code: "429"
+
+  - method: "GET"
+    path: "/api/movie/:id"
+    limit: 100
+    interval: "minute"
+    type: "ip"
+    key_field: ""
+    allow_on_failure: true
+    not_allow_msg: "Too many requests"
+    not_allow_code: "429"
+
+  - method: "GET"
+    path: "/api/movies"
+    limit: 50
+    interval: "minute"
+    type: "ip"
+    key_field: ""
+    allow_on_failure: true
+    not_allow_msg: "Too many requests"
+    not_allow_code: "429"
+
+  - method: "POST"
+    path: "/api/sign/up"
+    limit: 3
+    interval: "hour"
+    type: "ip"
+    key_field: ""
+    allow_on_failure: false
+    not_allow_msg: "Sign up limit exceeded"
+    not_allow_code: "429"
+
+  - method: "POST"
+    path: "/api/sign/in"
+    limit: 10
+    interval: "minute"
+    type: "ip"
+    key_field: ""
+    allow_on_failure: false
+    not_allow_msg: "Too many login attempts"
+    not_allow_code: "429"
+
+  - method: "POST"
+    path: "/api/confirm/code"
+    limit: 5
+    interval: "minute"
+    type: "ip"
+    key_field: ""
+    allow_on_failure: false
+    not_allow_msg: "Too many confirmation attempts"
+    not_allow_code: "429"

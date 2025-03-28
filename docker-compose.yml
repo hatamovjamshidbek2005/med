@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+  app:
+    image: med_service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_SOURCE=postgres://postgres:1111@db:5432/med?sslmode=disable #
+    networks:
+      - med_network
+
+  db:
+    image: postgres:16.3
+    container_name: db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1111
+      - POSTGRES_DB=med
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5454:5432" # Tashqi port:ichki port
+    networks:
+      - med_network
+
+  migrate:
+    image: migrate/migrate
+    command:
+      - "-path"
+      - "/migrations"
+      - "-database"
+      - "postgres://postgres:1111@db:5432/med?sslmode=disable"
+      - "up"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./internal/db/psql/migration:/migrations
+    networks:
+      - med_network
+
+networks:
+  med_network:
+    driver: bridge
+
+volumes:
+  db-data:
