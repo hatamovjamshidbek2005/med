@@ -73,15 +73,15 @@ func (e *emailOpts) SendConfirmation(receiver, pass string) error {
 					<div class="container">
 						<h1>ASSALMU ALLAYKUM HURMATLI MIJOZ</h1>
 						<p>XURMATLI MIJOZ BIZNI TANLAGANGiZDAN JUDA XURSADNMIZ: <strong>MED SAYTI</strong></p>
-						<p>SIZNING TIBBIY KO"RIK ": <span class="SANAGIZ: ">%s</span></p>
-						<p>Thank you for registering on <strong>med.uz</strong>!</p>
+						<p> TIBBIY KO"RIK ": <span class="ESLATMA: ">%s</span></p>
+						<p>Thank you for choose our on <strong>med.uz</strong>!</p>
 						<div class="footer">
 							<p>This is an automated message, please do not reply.</p>
 						</div>
 					</div>
 				</body>
 				</html>
-				`, "hadia.uz saytiga ro'yxatdan o'tish uchun tasdiqlash kodi:", pass)
+				`, pass)
 
 	m.SetBody("text/html", msg)
 

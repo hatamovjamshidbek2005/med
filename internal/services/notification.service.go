@@ -22,7 +22,6 @@ func (s *Service) ProcessEmailNotifications() error {
 		err = s.email.SendConfirmation(n.Email.String, n.Message)
 		status := "sent"
 		if err != nil {
-			fmt.Println("-----------------------------", err)
 			status = "failed"
 		}
 
